@@ -6,7 +6,7 @@ import { Card, CardContent, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Edit, Trash2 } from 'lucide-react';
-import type { Captcha } from '@/lib/db';
+import type { Captcha } from '@/lib/captcha.model';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -26,20 +26,8 @@ interface CaptchaCardProps {
 }
 
 export function CaptchaCard({ captcha, onEdit, onDelete }: CaptchaCardProps) {
-  const [isDeleting, setIsDeleting] = useState(false);
-
   const handleDelete = async () => {
-    setIsDeleting(true);
-    try {
-      await fetch(`/api/captchas/${captcha.id}`, {
-        method: 'DELETE',
-      });
-      onDelete(captcha.id);
-    } catch (error) {
-      console.error('Failed to delete captcha:', error);
-    } finally {
-      setIsDeleting(false);
-    }
+    onDelete(captcha.id);
   };
 
   return (
@@ -89,10 +77,8 @@ export function CaptchaCard({ captcha, onEdit, onDelete }: CaptchaCardProps) {
                 </AlertDialogHeader>
                 <AlertDialogFooter>
                   <AlertDialogCancel>Cancel</AlertDialogCancel>
-                  <AlertDialogAction
-                    onClick={handleDelete}
-                    disabled={isDeleting}>
-                    {isDeleting ? 'Deleting...' : 'Delete'}
+                  <AlertDialogAction onClick={handleDelete}>
+                    Delete
                   </AlertDialogAction>
                 </AlertDialogFooter>
               </AlertDialogContent>

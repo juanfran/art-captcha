@@ -5,7 +5,7 @@ export async function GET(
   request: Request,
   { params }: { params: { id: string } },
 ) {
-  const session = await auth(request);
+  const session = await auth();
 
   if (!session) {
     return Response.json({ error: 'Unauthorized' }, { status: 401 });
@@ -25,9 +25,9 @@ export async function GET(
 
 export async function PUT(
   request: Request,
-  { params }: { params: { id: string } },
+  { params }: { params: Promise<{ id: string }> },
 ) {
-  const session = await auth(request);
+  const session = await auth();
 
   if (!session) {
     return Response.json({ error: 'Unauthorized' }, { status: 401 });
@@ -35,7 +35,8 @@ export async function PUT(
 
   try {
     const body = await request.json();
-    const captcha = await updateCaptcha(Number.parseInt(params.id), body);
+    const { id } = await params;
+    const captcha = await updateCaptcha(Number.parseInt(id), body);
     return Response.json(captcha);
   } catch (error) {
     console.error('Failed to update captcha:', error);
@@ -50,7 +51,7 @@ export async function DELETE(
   request: Request,
   { params }: { params: { id: string } },
 ) {
-  const session = await auth(request);
+  const session = await auth();
 
   if (!session) {
     return Response.json({ error: 'Unauthorized' }, { status: 401 });

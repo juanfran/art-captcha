@@ -19,7 +19,7 @@ export function Navbar() {
     <nav className="border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
       <div className="container mx-auto flex h-14 items-center justify-between">
         <div className="flex items-center space-x-4">
-          <h1 className="text-xl font-bold">Captcha CMS</h1>
+          <h1 className="text-xl font-bold">Art Captcha CMS</h1>
         </div>
 
         <div className="flex items-center space-x-4">

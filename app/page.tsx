@@ -1,4 +1,4 @@
-"use client";
+'use client';
 
 import { useSession, signIn } from 'next-auth/react';
 import { useState, useEffect, useCallback } from 'react';
@@ -13,94 +13,141 @@ import {
 import { CaptchaCard } from '@/components/captcha-card';
 import { CaptchaForm } from '@/components/captcha-form';
 import { Navbar } from '@/components/navbar';
-import type { Captcha } from '@/lib/db';
+import type {
+  Captcha,
+  CaptchaFormValues,
+  CaptchaUpdateValues,
+} from '@/lib/captcha.model';
 import { Plus, Loader2 } from 'lucide-react';
 import { useInView } from 'react-intersection-observer';
+import {
+  keepPreviousData,
+  useMutation,
+  useQuery,
+  useQueryClient,
+} from '@tanstack/react-query';
+
+const pageSize = 10;
+
+async function fetchCaptchas(
+  offset = 0,
+  limit = pageSize,
+): Promise<{
+  captchas: Captcha[];
+  hasMore: boolean;
+}> {
+  const res = await fetch(`/api/captchas?offset=${offset}&limit=${limit}`);
+  if (!res.ok) {
+    throw new Error('Failed to fetch captchas');
+  }
+  const captchas = (await res.json()) as Captcha[];
+  return {
+    captchas,
+    hasMore: captchas.length === limit,
+  };
+}
 
 export default function Home() {
   const { data: session, status } = useSession();
-  const [captchas, setCaptchas] = useState<Captcha[]>([]);
-  const [loading, setLoading] = useState(false);
-  const [hasMore, setHasMore] = useState(true);
   const [showForm, setShowForm] = useState(false);
   const [editingCaptcha, setEditingCaptcha] = useState<Captcha | null>(null);
   const { ref, inView } = useInView();
+  const [page, setPage] = useState(0);
+  const queryClient = useQueryClient();
 
-  const loadCaptchas = useCallback(
-    async (offset = 0, reset = false) => {
-      if (loading || !hasMore) return;
+  const { isPending, error, data } = useQuery({
+    queryKey: ['captchas', page],
+    placeholderData: keepPreviousData,
+    queryFn: () => fetchCaptchas(page * pageSize, pageSize),
+  });
 
-      setLoading(true);
-      try {
-        const response = await fetch(`/api/captchas?offset=${offset}&limit=10`);
-        const newCaptchas = await response.json();
-
-        console.log('Loaded captchas:', newCaptchas);
-
-        if (newCaptchas.length < 10) {
-          setHasMore(false);
-        }
-
-        setCaptchas((prev) =>
-          reset ? newCaptchas : [...prev, ...newCaptchas],
-        );
-      } catch (error) {
-        console.error('Failed to load captchas:', error);
-      } finally {
-        setLoading(false);
-      }
-    },
-    [loading, hasMore],
-  );
-
-  useEffect(() => {
-    if (session) {
-      loadCaptchas(0, true);
-    }
-  }, [session]);
-
-  useEffect(() => {
-    if (inView && hasMore && !loading) {
-      loadCaptchas(captchas.length);
-    }
-  }, [inView, hasMore, loading, captchas.length, loadCaptchas]);
-
-  const handleCreateCaptcha = async (data: unknown) => {
-    try {
-      const response = await fetch('/api/captchas', {
+  const addCaptchaMutation = useMutation({
+    mutationFn: (newCaptcha: CaptchaFormValues) =>
+      fetch('/api/captchas', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(data),
-      });
-      const newCaptcha = await response.json();
-      setCaptchas((prev) => [newCaptcha, ...prev]);
-      setShowForm(false);
-    } catch (error) {
-      console.error('Failed to create captcha:', error);
-    }
-  };
+        body: JSON.stringify(newCaptcha),
+      }).then((res) => res.json()),
+    onSettled: () => queryClient.invalidateQueries({ queryKey: ['captchas'] }),
+  });
 
-  const handleUpdateCaptcha = async (data: unknown) => {
-    if (!editingCaptcha) return;
-
-    try {
-      const response = await fetch(`/api/captchas/${editingCaptcha.id}`, {
+  const updateCaptchaMutation = useMutation({
+    mutationFn: (updatedCaptcha: CaptchaUpdateValues) =>
+      fetch(`/api/captchas/${updatedCaptcha.id}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(data),
+        body: JSON.stringify(updatedCaptcha),
+      }).then((res) => res.json()),
+    onSettled: () => queryClient.invalidateQueries({ queryKey: ['captchas'] }),
+  });
+
+  const deleteCaptchaMutation = useMutation({
+    mutationFn: (id: number) =>
+      fetch(`/api/captchas/${id}`, {
+        method: 'DELETE',
+      }),
+    onMutate: async (id: number) => {
+      await queryClient.cancelQueries({ queryKey: ['captchas', page] });
+
+      const previousCaptchas = queryClient.getQueryData<{
+        captchas: Captcha[];
+        hasMore: boolean;
+      }>(['captchas', page]);
+
+      queryClient.setQueryData<{
+        captchas: Captcha[];
+        hasMore: boolean;
+      }>(['captchas', page], (old) => {
+        if (!old)
+          return {
+            captchas: [],
+            hasMore: false,
+          };
+
+        return {
+          ...old,
+          captchas: old.captchas.filter((captcha) => captcha.id !== id),
+        };
       });
-      const updatedCaptcha = await response.json();
-      setCaptchas((prev) =>
-        prev.map((c) => (c.id === updatedCaptcha.id ? updatedCaptcha : c)),
-      );
-      setEditingCaptcha(null);
-    } catch (error) {
-      console.error('Failed to update captcha:', error);
+
+      return { previousCaptchas };
+    },
+    onError: (err, id, context) => {
+      if (context?.previousCaptchas) {
+        queryClient.setQueryData(['captchas', page], context.previousCaptchas);
+      }
+    },
+    onSettled: () => {
+      queryClient.invalidateQueries({ queryKey: ['captchas', page] });
+    },
+  });
+
+  const { mutate, variables, isPending: isAdding } = addCaptchaMutation;
+
+  useEffect(() => {
+    if (inView && data?.hasMore && !isPending) {
+      setPage((prev) => prev + 1);
     }
+  }, [inView, data?.hasMore, isPending]);
+
+  const handleCreateCaptcha = async (data: CaptchaFormValues) => {
+    mutate(data);
+    setShowForm(false);
+  };
+
+  const handleUpdateCaptcha = async (data: Omit<CaptchaUpdateValues, 'id'>) => {
+    if (!editingCaptcha) return;
+
+    updateCaptchaMutation.mutate({
+      ...data,
+      id: editingCaptcha.id,
+    });
+
+    setEditingCaptcha(null);
   };
 
   const handleDeleteCaptcha = (id: number) => {
-    setCaptchas((prev) => prev.filter((c) => c.id !== id));
+    deleteCaptchaMutation.mutate(id);
   };
 
   if (status === 'loading') {
@@ -116,7 +163,7 @@ export default function Home() {
       <div className="min-h-screen flex items-center justify-center bg-background">
         <Card className="w-full max-w-md">
           <CardHeader className="text-center">
-            <CardTitle className="text-2xl">Captcha CMS</CardTitle>
+            <CardTitle className="text-2xl">Art Captcha CMS</CardTitle>
             <CardDescription>
               Sign in with Google to manage your captchas
             </CardDescription>
@@ -137,7 +184,7 @@ export default function Home() {
     return (
       <div className="min-h-screen bg-background">
         <Navbar />
-        <div className="container py-8">
+        <div className="container mx-auto py-8">
           <CaptchaForm
             captcha={editingCaptcha || undefined}
             onSubmit={
@@ -170,7 +217,7 @@ export default function Home() {
           </Button>
         </div>
 
-        {captchas.length === 0 && !loading ? (
+        {data?.captchas.length === 0 && !isPending && !isAdding ? (
           <Card className="text-center py-12">
             <CardContent>
               <p className="text-muted-foreground mb-4">No captchas found</p>
@@ -182,7 +229,16 @@ export default function Home() {
           </Card>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-            {captchas.map((captcha) => (
+            {isAdding && variables && (
+              <CaptchaCard
+                key={'new-captcha'}
+                captcha={variables}
+                onEdit={setEditingCaptcha}
+                onDelete={handleDeleteCaptcha}
+              />
+            )}
+
+            {data?.captchas.map((captcha) => (
               <CaptchaCard
                 key={captcha.id}
                 captcha={captcha}
@@ -193,11 +249,11 @@ export default function Home() {
           </div>
         )}
 
-        {hasMore && (
+        {data?.hasMore && (
           <div
             ref={ref}
             className="flex justify-center py-8">
-            {loading && <Loader2 className="h-6 w-6 animate-spin" />}
+            {isPending && <Loader2 className="h-6 w-6 animate-spin" />}
           </div>
         )}
       </div>

@@ -1,18 +1,11 @@
 import { db } from '../db/index';
 import { captchas } from '../db/schema';
-import { eq, desc } from 'drizzle-orm';
-
-export interface Captcha {
-  id: number;
-  name: string;
-  imageUrl: string;
-  accuracyPercentage: number;
-  gridType: string;
-  correctCells: number[];
-  createdAt: string;
-  updatedAt: string;
-  createdBy: string;
-}
+import { eq, desc, sql } from 'drizzle-orm';
+import {
+  Captcha,
+  CaptchaFormValues,
+  CaptchaUpdateValues,
+} from './captcha.model';
 
 export async function getCaptchas(offset = 0, limit = 10) {
   return await db
@@ -28,9 +21,7 @@ export async function getCaptchaById(id: number) {
   return result[0] || null;
 }
 
-export async function createCaptcha(
-  captcha: Omit<Captcha, 'id' | 'createdAt' | 'updatedAt'>,
-) {
+export async function createCaptcha(captcha: CaptchaFormValues) {
   const [inserted] = await db
     .insert(captchas)
     .values({
@@ -46,20 +37,11 @@ export async function createCaptcha(
   return inserted;
 }
 
-export async function updateCaptcha(
-  id: number,
-  captcha: Partial<Omit<Captcha, 'id' | 'createdAt' | 'updatedAt'>>,
-) {
+export async function updateCaptcha(id: number, captcha: CaptchaUpdateValues) {
   const [updated] = await db
     .update(captchas)
     .set({
-      ...(captcha.name && { name: captcha.name }),
-      ...(captcha.imageUrl && { imageUrl: captcha.imageUrl }),
-      ...(captcha.accuracyPercentage !== undefined && {
-        accuracyPercentage: captcha.accuracyPercentage,
-      }),
-      ...(captcha.gridType && { gridType: captcha.gridType }),
-      ...(captcha.correctCells && { correctCells: captcha.correctCells }),
+      ...captcha,
       updatedAt: new Date(),
     })
     .where(eq(captchas.id, id))

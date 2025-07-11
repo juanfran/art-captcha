@@ -15,12 +15,16 @@ import {
 } from '@/components/ui/select';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { GridSelector } from '@/components/grid-selector';
-import type { Captcha } from '@/lib/db';
+import type {
+  Captcha,
+  CaptchaFormValues,
+  CaptchaUpdateValues,
+} from '@/lib/captcha.model';
 import { Upload } from 'lucide-react';
 
 interface CaptchaFormProps {
   captcha?: Captcha;
-  onSubmit: (data: unknown) => void;
+  onSubmit: (data: Omit<CaptchaUpdateValues, 'id'> | CaptchaFormValues) => void;
   onCancel: () => void;
 }
 
@@ -32,7 +36,7 @@ export function CaptchaForm({ captcha, onSubmit, onCancel }: CaptchaFormProps) {
     accuracyPercentage: captcha?.accuracyPercentage || 80,
     gridType: captcha?.gridType || '3x3',
     imageUrl: captcha?.imageUrl || '',
-    correctCells: captcha?.correctCells || [],
+    correctCells: captcha?.correctCells || ([] as number[]),
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
