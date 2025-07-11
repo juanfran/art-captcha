@@ -18,6 +18,7 @@ export async function GET(
     }
     return Response.json(captcha);
   } catch (error) {
+    console.error('Failed to fetch captcha:', error);
     return Response.json({ error: 'Failed to fetch captcha' }, { status: 500 });
   }
 }
@@ -59,6 +60,7 @@ export async function DELETE(
     await deleteCaptcha(Number.parseInt(params.id));
     return Response.json({ success: true });
   } catch (error) {
+    console.error('Failed to delete captcha:', error);
     return Response.json(
       { error: 'Failed to delete captcha' },
       { status: 500 },

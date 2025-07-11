@@ -1,4 +1,3 @@
-import { type NextRequest, NextResponse } from 'next/server';
 import { auth } from '@/auth';
 import { getCaptchas, createCaptcha } from '@/lib/db';
 
@@ -17,6 +16,7 @@ export async function GET(request: Request) {
     const captchas = await getCaptchas(offset, limit);
     return Response.json(captchas);
   } catch (error) {
+    console.error('Failed to fetch captchas:', error);
     return Response.json(
       { error: 'Failed to fetch captchas' },
       { status: 500 },

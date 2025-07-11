@@ -31,7 +31,6 @@ export function GridSelector({
           src={imageUrl || '/placeholder.svg'}
           alt="Captcha"
           className="w-full max-w-md mx-auto rounded-lg"
-          crossOrigin="anonymous"
         />
         <div
           className="absolute inset-0 grid gap-1 p-1"

@@ -20,7 +20,7 @@ import { Upload } from 'lucide-react';
 
 interface CaptchaFormProps {
   captcha?: Captcha;
-  onSubmit: (data: any) => void;
+  onSubmit: (data: unknown) => void;
   onCancel: () => void;
 }
 
