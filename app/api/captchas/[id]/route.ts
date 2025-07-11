@@ -1,48 +1,44 @@
-import { type NextRequest, NextResponse } from 'next/server';
-import { getServerSession } from 'next-auth';
-import { authOptions } from '@/lib/auth';
+import { auth } from '@/auth';
 import { getCaptchaById, updateCaptcha, deleteCaptcha } from '@/lib/db';
 
 export async function GET(
-  request: NextRequest,
+  request: Request,
   { params }: { params: { id: string } },
 ) {
-  const session = await getServerSession(authOptions);
+  const session = await auth(request);
 
   if (!session) {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    return Response.json({ error: 'Unauthorized' }, { status: 401 });
   }
 
   try {
     const captcha = await getCaptchaById(Number.parseInt(params.id));
     if (!captcha) {
-      return NextResponse.json({ error: 'Captcha not found' }, { status: 404 });
+      return Response.json({ error: 'Captcha not found' }, { status: 404 });
     }
-    return NextResponse.json(captcha);
+    return Response.json(captcha);
   } catch (error) {
-    return NextResponse.json(
-      { error: 'Failed to fetch captcha' },
-      { status: 500 },
-    );
+    return Response.json({ error: 'Failed to fetch captcha' }, { status: 500 });
   }
 }
 
 export async function PUT(
-  request: NextRequest,
+  request: Request,
   { params }: { params: { id: string } },
 ) {
-  const session = await getServerSession(authOptions);
+  const session = await auth(request);
 
   if (!session) {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    return Response.json({ error: 'Unauthorized' }, { status: 401 });
   }
 
   try {
     const body = await request.json();
     const captcha = await updateCaptcha(Number.parseInt(params.id), body);
-    return NextResponse.json(captcha);
+    return Response.json(captcha);
   } catch (error) {
-    return NextResponse.json(
+    console.error('Failed to update captcha:', error);
+    return Response.json(
       { error: 'Failed to update captcha' },
       { status: 500 },
     );
@@ -50,20 +46,20 @@ export async function PUT(
 }
 
 export async function DELETE(
-  request: NextRequest,
+  request: Request,
   { params }: { params: { id: string } },
 ) {
-  const session = await getServerSession(authOptions);
+  const session = await auth(request);
 
   if (!session) {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    return Response.json({ error: 'Unauthorized' }, { status: 401 });
   }
 
   try {
     await deleteCaptcha(Number.parseInt(params.id));
-    return NextResponse.json({ success: true });
+    return Response.json({ success: true });
   } catch (error) {
-    return NextResponse.json(
+    return Response.json(
       { error: 'Failed to delete captcha' },
       { status: 500 },
     );

@@ -47,7 +47,7 @@ export function CaptchaCard({ captcha, onEdit, onDelete }: CaptchaCardProps) {
       <CardContent className="p-0">
         <div className="relative aspect-square">
           <Image
-            src={captcha.image_url || '/placeholder.svg'}
+            src={captcha.imageUrl || '/placeholder.svg'}
             alt={captcha.name}
             fill
             className="object-cover"
@@ -58,11 +58,11 @@ export function CaptchaCard({ captcha, onEdit, onDelete }: CaptchaCardProps) {
       <CardFooter className="flex flex-col items-start gap-2 p-4">
         <div className="flex w-full items-center justify-between">
           <h3 className="font-semibold truncate">{captcha.name}</h3>
-          <Badge variant="secondary">{captcha.grid_type}</Badge>
+          <Badge variant="secondary">{captcha.gridType}</Badge>
         </div>
         <div className="flex w-full items-center justify-between">
           <span className="text-sm text-muted-foreground">
-            {captcha.accuracy_percentage}% accuracy
+            {captcha.accuracyPercentage}% accuracy
           </span>
           <div className="flex gap-2">
             <Button

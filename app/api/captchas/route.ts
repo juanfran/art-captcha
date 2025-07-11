@@ -33,12 +33,14 @@ export async function POST(request: Request) {
 
   try {
     const body = await request.json();
+
     const captcha = await createCaptcha({
       ...body,
-      created_by: session.user?.email || '',
+      createdBy: session.user?.email || '',
     });
     return Response.json(captcha);
   } catch (error) {
+    console.error('Failed to create captcha:', error);
     return Response.json(
       { error: 'Failed to create captcha' },
       { status: 500 },

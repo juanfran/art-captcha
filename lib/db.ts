@@ -42,6 +42,7 @@ export async function createCaptcha(
       createdBy: captcha.createdBy,
     })
     .returning();
+
   return inserted;
 }
 

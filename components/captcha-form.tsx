@@ -29,10 +29,10 @@ const GRID_TYPES = ['3x3', '3x4', '4x3', '4x4', '5x5'];
 export function CaptchaForm({ captcha, onSubmit, onCancel }: CaptchaFormProps) {
   const [formData, setFormData] = useState({
     name: captcha?.name || '',
-    accuracy_percentage: captcha?.accuracy_percentage || 80,
-    grid_type: captcha?.grid_type || '3x3',
-    image_url: captcha?.image_url || '',
-    correct_cells: captcha?.correct_cells || [],
+    accuracyPercentage: captcha?.accuracyPercentage || 80,
+    gridType: captcha?.gridType || '3x3',
+    imageUrl: captcha?.imageUrl || '',
+    correctCells: captcha?.correctCells || [],
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -44,7 +44,7 @@ export function CaptchaForm({ captcha, onSubmit, onCancel }: CaptchaFormProps) {
       reader.onload = (e) => {
         setFormData((prev) => ({
           ...prev,
-          image_url: e.target?.result as string,
+          imageUrl: e.target?.result as string,
         }));
       };
       reader.readAsDataURL(file);
@@ -90,7 +90,7 @@ export function CaptchaForm({ captcha, onSubmit, onCancel }: CaptchaFormProps) {
               type="number"
               min="0"
               max="100"
-              value={formData.accuracy_percentage}
+              value={formData.accuracyPercentage}
               onChange={(e) =>
                 setFormData((prev) => ({
                   ...prev,
@@ -104,12 +104,12 @@ export function CaptchaForm({ captcha, onSubmit, onCancel }: CaptchaFormProps) {
           <div className="space-y-2">
             <Label htmlFor="grid-type">Grid Type</Label>
             <Select
-              value={formData.grid_type}
+              value={formData.gridType}
               onValueChange={(value) =>
                 setFormData((prev) => ({
                   ...prev,
-                  grid_type: value,
-                  correct_cells: [],
+                  gridType: value,
+                  correctCells: [],
                 }))
               }>
               <SelectTrigger>
@@ -147,15 +147,15 @@ export function CaptchaForm({ captcha, onSubmit, onCancel }: CaptchaFormProps) {
             </div>
           </div>
 
-          {formData.image_url && (
+          {formData.imageUrl && (
             <div className="space-y-2">
               <Label>Select Correct Cells</Label>
               <GridSelector
-                gridType={formData.grid_type}
-                imageUrl={formData.image_url}
-                selectedCells={formData.correct_cells}
+                gridType={formData.gridType}
+                imageUrl={formData.imageUrl}
+                selectedCells={formData.correctCells}
                 onSelectionChange={(cells) =>
-                  setFormData((prev) => ({ ...prev, correct_cells: cells }))
+                  setFormData((prev) => ({ ...prev, correctCells: cells }))
                 }
               />
             </div>
@@ -164,7 +164,7 @@ export function CaptchaForm({ captcha, onSubmit, onCancel }: CaptchaFormProps) {
           <div className="flex gap-4">
             <Button
               type="submit"
-              disabled={isSubmitting || !formData.image_url}>
+              disabled={isSubmitting || !formData.imageUrl}>
               {isSubmitting ? 'Saving...' : captcha ? 'Update' : 'Create'}
             </Button>
             <Button
