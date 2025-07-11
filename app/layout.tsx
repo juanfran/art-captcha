@@ -9,7 +9,6 @@ const inter = Inter({ subsets: ['latin'] });
 export const metadata: Metadata = {
   title: 'Captcha CMS',
   description: 'Content Management System for Captchas',
-  generator: 'v0.dev',
 };
 
 export default function RootLayout({
