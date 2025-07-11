@@ -65,7 +65,7 @@ export default function Home() {
     }
   }, [inView, hasMore, loading, captchas.length, loadCaptchas]);
 
-  const handleCreateCaptcha = async (data: any) => {
+  const handleCreateCaptcha = async (data: unknown) => {
     try {
       const response = await fetch('/api/captchas', {
         method: 'POST',
@@ -80,7 +80,7 @@ export default function Home() {
     }
   };
 
-  const handleUpdateCaptcha = async (data: any) => {
+  const handleUpdateCaptcha = async (data: unknown) => {
     if (!editingCaptcha) return;
 
     try {
