@@ -1,0 +1,105 @@
+'use client';
+
+import { useState } from 'react';
+import Image from 'next/image';
+import { Card, CardContent, CardFooter } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
+import { Edit, Trash2 } from 'lucide-react';
+import type { Captcha } from '@/lib/db';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from '@/components/ui/alert-dialog';
+
+interface CaptchaCardProps {
+  captcha: Captcha;
+  onEdit: (captcha: Captcha) => void;
+  onDelete: (id: number) => void;
+}
+
+export function CaptchaCard({ captcha, onEdit, onDelete }: CaptchaCardProps) {
+  const [isDeleting, setIsDeleting] = useState(false);
+
+  const handleDelete = async () => {
+    setIsDeleting(true);
+    try {
+      await fetch(`/api/captchas/${captcha.id}`, {
+        method: 'DELETE',
+      });
+      onDelete(captcha.id);
+    } catch (error) {
+      console.error('Failed to delete captcha:', error);
+    } finally {
+      setIsDeleting(false);
+    }
+  };
+
+  return (
+    <Card className="overflow-hidden">
+      <CardContent className="p-0">
+        <div className="relative aspect-square">
+          <Image
+            src={captcha.image_url || '/placeholder.svg'}
+            alt={captcha.name}
+            fill
+            className="object-cover"
+            crossOrigin="anonymous"
+          />
+        </div>
+      </CardContent>
+      <CardFooter className="flex flex-col items-start gap-2 p-4">
+        <div className="flex w-full items-center justify-between">
+          <h3 className="font-semibold truncate">{captcha.name}</h3>
+          <Badge variant="secondary">{captcha.grid_type}</Badge>
+        </div>
+        <div className="flex w-full items-center justify-between">
+          <span className="text-sm text-muted-foreground">
+            {captcha.accuracy_percentage}% accuracy
+          </span>
+          <div className="flex gap-2">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => onEdit(captcha)}>
+              <Edit className="h-4 w-4" />
+            </Button>
+            <AlertDialog>
+              <AlertDialogTrigger asChild>
+                <Button
+                  variant="outline"
+                  size="sm">
+                  <Trash2 className="h-4 w-4" />
+                </Button>
+              </AlertDialogTrigger>
+              <AlertDialogContent>
+                <AlertDialogHeader>
+                  <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+                  <AlertDialogDescription>
+                    This action cannot be undone. This will permanently delete
+                    the captcha.
+                  </AlertDialogDescription>
+                </AlertDialogHeader>
+                <AlertDialogFooter>
+                  <AlertDialogCancel>Cancel</AlertDialogCancel>
+                  <AlertDialogAction
+                    onClick={handleDelete}
+                    disabled={isDeleting}>
+                    {isDeleting ? 'Deleting...' : 'Delete'}
+                  </AlertDialogAction>
+                </AlertDialogFooter>
+              </AlertDialogContent>
+            </AlertDialog>
+          </div>
+        </div>
+      </CardFooter>
+    </Card>
+  );
+}
