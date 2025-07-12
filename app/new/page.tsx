@@ -1,7 +1,7 @@
 'use client';
 
 import { useSession } from 'next-auth/react';
-import { useRouter } from 'next/navigation';
+import { redirect, useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import {
   Card,
@@ -50,25 +50,7 @@ export default function NewCaptchaPage() {
   }
 
   if (!session) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-background">
-        <Card className="w-full max-w-md">
-          <CardHeader className="text-center">
-            <CardTitle className="text-2xl">Art Captcha CMS</CardTitle>
-            <CardDescription>
-              Sign in with Google to create captchas
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <Button
-              onClick={() => router.push('/')}
-              className="w-full">
-              Go Back to Home
-            </Button>
-          </CardContent>
-        </Card>
-      </div>
-    );
+    redirect('/login');
   }
 
   return (
