@@ -15,11 +15,7 @@ import {
 } from '@/components/ui/select';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { GridSelector } from '@/components/grid-selector';
-import type {
-  Captcha,
-  CaptchaFormValues,
-  CaptchaUpdateValues,
-} from '@/lib/captcha.model';
+import type { Captcha, CaptchaFormValues } from '@/lib/captcha.model';
 import { Upload } from 'lucide-react';
 
 interface CaptchaFormProps {

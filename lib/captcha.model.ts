@@ -10,8 +10,7 @@ export interface Captcha {
   createdBy: string;
 }
 
-export interface CaptchaFormValues
-  extends Omit<Captcha, 'id' | 'createdAt' | 'updatedAt'> {}
+export type CaptchaFormValues = Omit<Captcha, 'id' | 'createdAt' | 'updatedAt'>;
 
 export interface CaptchaUpdateValues
   extends Partial<Omit<Captcha, 'id' | 'createdAt' | 'updatedAt'>> {

@@ -1,4 +1,3 @@
-import { Loader2 } from 'lucide-react';
 import { motion, Variants } from 'motion/react';
 
 export function LoadingSpinner() {

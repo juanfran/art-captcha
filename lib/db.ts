@@ -1,11 +1,7 @@
 import { db } from '../db/index';
 import { captchas } from '../db/schema';
-import { eq, desc, sql } from 'drizzle-orm';
-import {
-  Captcha,
-  CaptchaFormValues,
-  CaptchaUpdateValues,
-} from './captcha.model';
+import { eq, desc } from 'drizzle-orm';
+import { CaptchaFormValues, CaptchaUpdateValues } from './captcha.model';
 
 export async function getCaptchas(offset = 0, limit = 10) {
   return await db

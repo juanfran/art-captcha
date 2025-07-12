@@ -4,17 +4,10 @@ import { useSession } from 'next-auth/react';
 import { redirect, useRouter } from 'next/navigation';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { Button } from '@/components/ui/button';
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
 import { CaptchaForm } from '@/components/captcha-form';
 import { Navbar } from '@/components/navbar';
 import { LoadingSpinner } from '@/components/layout';
-import { useCaptchas } from '@/hooks/useCaptchas';
 import { fetchCaptchaById, updateCaptcha } from '@/lib/api/captchas';
 import type { CaptchaFormValues } from '@/lib/captcha.model';
 import { use } from 'react';

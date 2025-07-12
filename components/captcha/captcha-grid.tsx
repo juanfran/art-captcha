@@ -1,5 +1,5 @@
 import { CaptchaCard } from './captcha-card';
-import type { Captcha, CaptchaFormValues } from '@/lib/captcha.model';
+import type { Captcha } from '@/lib/captcha.model';
 import { AnimatePresence, motion } from 'motion/react';
 interface CaptchaGridProps {
   captchas: Captcha[];

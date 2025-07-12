@@ -10,11 +10,10 @@ import {
   CardTitle,
 } from '@/components/ui/card';
 import { LoadingSpinner } from '@/components/layout';
-import { redirect, useRouter } from 'next/navigation';
+import { redirect } from 'next/navigation';
 
 export default function Login() {
   const { data: session, status } = useSession();
-  const router = useRouter();
 
   if (status === 'loading') {
     return (
