@@ -26,6 +26,14 @@ export async function fetchCaptchas(
   };
 }
 
+export async function fetchCaptchaById(id: number): Promise<Captcha> {
+  const res = await fetch(`/api/captchas/${id}`);
+  if (!res.ok) {
+    throw new Error('Failed to fetch captcha');
+  }
+  return res.json();
+}
+
 export async function createCaptcha(data: CaptchaFormValues): Promise<Captcha> {
   const res = await fetch('/api/captchas', {
     method: 'POST',

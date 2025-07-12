@@ -11,6 +11,7 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { ModeToggle } from '@/components/mode-toggle';
 import { LogOut, User } from 'lucide-react';
+import Link from 'next/link';
 
 export function Navbar() {
   const { data: session } = useSession();
@@ -19,7 +20,9 @@ export function Navbar() {
     <nav className="border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
       <div className="container mx-auto flex h-14 items-center justify-between">
         <div className="flex items-center space-x-4">
-          <h1 className="text-xl font-bold">Art Captcha CMS</h1>
+          <Link href="/">
+            <h1 className="text-xl font-bold">Art Captcha CMS</h1>
+          </Link>
         </div>
 
         <div className="flex items-center space-x-4">

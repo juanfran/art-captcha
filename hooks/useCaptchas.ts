@@ -6,7 +6,6 @@ import {
 import {
   fetchCaptchas,
   createCaptcha,
-  updateCaptcha,
   deleteCaptcha,
   type FetchCaptchasResponse,
 } from '@/lib/api/captchas';
@@ -26,14 +25,6 @@ export function useCaptchas(pageSize = 10) {
   // Mutation for creating captcha
   const add = useMutation({
     mutationFn: createCaptcha,
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['captchas'] });
-    },
-  });
-
-  // Mutation for updating captcha
-  const update = useMutation({
-    mutationFn: updateCaptcha,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['captchas'] });
     },
@@ -82,7 +73,6 @@ export function useCaptchas(pageSize = 10) {
     isFetchingNextPage: query.isFetchingNextPage,
     fetchNextPage: query.fetchNextPage,
     add,
-    update,
     remove,
   };
 }

@@ -24,7 +24,7 @@ import { Upload } from 'lucide-react';
 
 interface CaptchaFormProps {
   captcha?: Captcha;
-  onSubmit: (data: Omit<CaptchaUpdateValues, 'id'> | CaptchaFormValues) => void;
+  onSubmit: (data: Omit<CaptchaFormValues, 'createdBy'>) => void;
   onCancel: () => void;
 }
 

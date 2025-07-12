@@ -8,7 +8,7 @@ import {
   QueryClient,
   QueryClientProvider,
   useQuery,
-} from '@tanstack/react-query'
+} from '@tanstack/react-query';
 
 const queryClient = new QueryClient();
 
@@ -20,7 +20,9 @@ export function Providers({ children }: { children: React.ReactNode }) {
         defaultTheme="system"
         enableSystem
         disableTransitionOnChange>
-          <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
+        <QueryClientProvider client={queryClient}>
+          {children}
+        </QueryClientProvider>
       </ThemeProvider>
     </SessionProvider>
   );

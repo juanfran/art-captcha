@@ -26,7 +26,9 @@ export function InfiniteScrollTrigger({
   }
 
   return (
-    <div ref={ref} className="flex justify-center py-8">
+    <div
+      ref={ref}
+      className="flex justify-center py-8">
       {isFetchingNextPage && <LoadingSpinner />}
     </div>
   );

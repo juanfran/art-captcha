@@ -11,14 +11,12 @@ type OptimisticCaptcha = CaptchaFormValues & {
 interface CaptchaGridProps {
   captchas: Captcha[];
   optimisticCaptcha?: OptimisticCaptcha;
-  onEdit: (captcha: Captcha) => void;
   onDelete: (id: number) => void;
 }
 
 export function CaptchaGrid({
   captchas,
   optimisticCaptcha,
-  onEdit,
   onDelete,
 }: CaptchaGridProps) {
   return (
@@ -27,7 +25,6 @@ export function CaptchaGrid({
         <CaptchaCard
           key="optimistic-captcha"
           captcha={optimisticCaptcha as Captcha}
-          onEdit={onEdit}
           onDelete={onDelete}
         />
       )}
@@ -36,7 +33,6 @@ export function CaptchaGrid({
         <CaptchaCard
           key={captcha.id}
           captcha={captcha}
-          onEdit={onEdit}
           onDelete={onDelete}
         />
       ))}

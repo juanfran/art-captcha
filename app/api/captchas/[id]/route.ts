@@ -11,8 +11,10 @@ export async function GET(
     return Response.json({ error: 'Unauthorized' }, { status: 401 });
   }
 
+  const { id } = await params;
+
   try {
-    const captcha = await getCaptchaById(Number.parseInt(params.id));
+    const captcha = await getCaptchaById(Number.parseInt(id));
     if (!captcha) {
       return Response.json({ error: 'Captcha not found' }, { status: 404 });
     }

@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import Image from 'next/image';
+import { useRouter } from 'next/navigation';
 import { Card, CardContent, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -21,11 +22,16 @@ import {
 
 interface CaptchaCardProps {
   captcha: Captcha;
-  onEdit: (captcha: Captcha) => void;
   onDelete: (id: number) => void;
 }
 
-export function CaptchaCard({ captcha, onEdit, onDelete }: CaptchaCardProps) {
+export function CaptchaCard({ captcha, onDelete }: CaptchaCardProps) {
+  const router = useRouter();
+
+  const handleEdit = () => {
+    router.push(`/captcha/${captcha.id}`);
+  };
+
   const handleDelete = async () => {
     onDelete(captcha.id);
   };
@@ -56,7 +62,7 @@ export function CaptchaCard({ captcha, onEdit, onDelete }: CaptchaCardProps) {
             <Button
               variant="outline"
               size="sm"
-              onClick={() => onEdit(captcha)}>
+              onClick={handleEdit}>
               <Edit className="h-4 w-4" />
             </Button>
             <AlertDialog>
