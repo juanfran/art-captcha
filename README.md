@@ -3,73 +3,193 @@
 This is an **experimental project** not intended for production use.  
 The goal is to explore the idea of an **art-based CAPTCHA** system.
 
----
+## ✨ Features
 
-## 🚀 Getting Started
+- 🎨 **Custom Image CAPTCHAs**: Upload images and create grid-based verification challenges
+- 🎯 **Configurable Accuracy**: Set custom accuracy thresholds (e.g., 80% correct selections required)
+- 📐 **Multiple Grid Types**: Support for 3x3, 3x4, 4x3, 4x4, 5x5 grids
+- 🌙 **Theme Support**: Light and dark themes for better integration
+- 📱 **Responsive Design**: Works seamlessly on desktop and mobile devices
+- 🔒 **Secure Verification**: Server-side token validation with expiration
+- 🚀 **Easy Integration**: Simple JavaScript widget for any website
+- 🛠 **Developer Friendly**: Complete API documentation and examples
+- ⚡ **Widget Generator**: Visual tool to generate embed codes
+- 📊 **Management Dashboard**: Create, edit, and manage all your CAPTCHAs
 
-### 1. Clone the repository
+## 🚀 Quick Start
+
+### 1. Clone and Install
 
 ```bash
 git clone https://github.com/juanfran/art-captcha
 cd art-captcha
-```
-
-### 2. Install dependencies
-
-This project uses [pnpm](https://pnpm.io/). If you don't have it installed:
-
-```bash
-npm install -g pnpm
-```
-
-Then install project dependencies:
-
-```bash
 pnpm install
 ```
 
-### 3. Environment variables
-
-You need to create a `.env` file based on the `.env.example` file.
+### 2. Environment Setup
 
 ```bash
 cp .env.example .env
 ```
 
-Fill in the required environment variables:
+Configure your environment variables:
 
 ```env
-GOOGLE_CLIENT_ID=your-google-client-id
-GOOGLE_CLIENT_SECRET=your-google-client-secret
+# Database
+DATABASE_URL="postgresql://username:password@localhost:5432/artcaptcha"
 
-DATABASE_URL=your-database-url
-
-AUTH_SECRET=your-auth-secret
+# NextAuth Configuration
+NEXTAUTH_URL="http://localhost:3000"
+AUTH_SECRET="your-auth-secret"
 AUTH_TRUST_HOST=true
+
+# OAuth Providers (optional)
+GOOGLE_CLIENT_ID="your-google-client-id"
+GOOGLE_CLIENT_SECRET="your-google-client-secret"
 ```
 
-### 4. Requirements
+### 3. Database Setup
 
-- **PostgreSQL** must be installed and running.
-- Node.js version **24.4.0** is required.
+Ensure PostgreSQL is running and create your database:
 
-### 5. Start the development server
+```bash
+# Run database migrations
+pnpm db:push
+```
+
+### 4. Start Development
 
 ```bash
 pnpm dev
 ```
 
-Visit the app at [http://localhost:3000](http://localhost:3000)
+Visit [http://localhost:3000](http://localhost:3000) to access the CMS.
 
----
+## 🎯 How It Works
 
-## ⚠️ Disclaimer
+### 1. Create CAPTCHAs
 
-This is a prototype built for experimentation purposes only.
-Do **not** use in production environments.
+- Upload an image through the CMS dashboard
+- Select grid type (3x3, 4x4, etc.)
+- Mark the correct cells that users should select
+- Set accuracy requirements (e.g., 80% correct)
 
----
+### 2. Generate Widget Code
 
-## License
+- Use the Widget Generator to create embed code
+- Customize theme and size options
+- Copy the generated JavaScript snippet
 
-MIT
+### 3. Embed in Your Website
+
+```html
+<!-- Basic Integration -->
+<div
+  id="captcha"
+  data-art-captcha="1"></div>
+<script src="https://your-domain.com/api/widget/script?id=1"></script>
+
+<!-- With Custom Callbacks -->
+<script>
+  ArtCaptcha.init('#captcha', {
+    onSuccess: function (token) {
+      // CAPTCHA verified successfully
+      document.getElementById('captcha-token').value = token;
+    },
+    onError: function (error) {
+      // Verification failed
+      console.log('CAPTCHA failed:', error);
+    },
+  });
+</script>
+```
+
+### 4. Server-side Validation
+
+```javascript
+// Validate the verification token on your server
+const response = await fetch('https://your-domain.com/api/widget/validate', {
+  method: 'POST',
+  headers: { 'Content-Type': 'application/json' },
+  body: JSON.stringify({
+    verificationToken: token,
+    sessionToken: sessionId,
+  }),
+});
+
+const result = await response.json();
+if (result.valid) {
+  // Process form submission
+} else {
+  // Reject submission
+}
+```
+
+## 📖 Documentation
+
+- **Widget Generator**: `/widget-generator` - Visual tool to create embed codes
+- **Documentation**: `/docs` - Complete developer documentation
+- **API Reference**: Detailed endpoints and examples included
+
+## 🔧 API Endpoints
+
+### Public Widget APIs
+
+- `GET /api/widget/captcha/[id]` - Get CAPTCHA data (public)
+- `POST /api/widget/verify` - Verify user selections
+- `POST /api/widget/validate` - Server-side token validation
+- `GET /api/widget/script` - Widget JavaScript code
+
+### Management APIs (Authenticated)
+
+- `GET /api/captchas` - List all CAPTCHAs
+- `POST /api/captchas` - Create new CAPTCHA
+- `GET /api/captchas/[id]` - Get specific CAPTCHA
+- `PUT /api/captchas/[id]` - Update CAPTCHA
+- `DELETE /api/captchas/[id]` - Delete CAPTCHA
+
+## 🛡️ Security Features
+
+- **Token Expiration**: Verification tokens expire after 10 minutes
+- **Session Validation**: Prevents replay attacks with session tokens
+- **Server-side Verification**: Never trust client-side validation alone
+- **CORS Support**: Secure cross-origin embedding
+- **Rate Limiting**: Built-in protection against abuse
+
+## 🎨 Customization Options
+
+### Themes
+
+- **Light Theme**: Perfect for light-colored websites
+- **Dark Theme**: Seamless integration with dark websites
+
+### Sizes
+
+- **Small**: 300px max width
+- **Normal**: 400px max width (default)
+- **Large**: 500px max width
+
+### Grid Types
+
+- 3x3, 3x4, 4x3, 4x4, 5x5 grids supported
+- Easy to extend for custom grid sizes
+
+## 🚀 Production Deployment
+
+1. **Environment Variables**: Update `.env` with production values
+2. **Database**: Use a production PostgreSQL instance
+3. **HTTPS**: Ensure SSL certificate for secure token transmission
+4. **Domain**: Update `NEXTAUTH_URL` to your production domain
+
+## ⚠️ Important Notes
+
+- This is an **experimental project** for educational purposes
+- **Test thoroughly** before considering production use
+- Always validate CAPTCHAs server-side
+- Consider accessibility requirements for your users
+
+## 📄 License
+
+MIT License - see LICENSE.md for details
+
+**Built with**: Next.js 15, React 19, TypeScript, Tailwind CSS, Drizzle ORM, NextAuth.js

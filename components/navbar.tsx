@@ -12,9 +12,11 @@ import {
 import { ModeToggle } from '@/components/mode-toggle';
 import { LogOut, User } from 'lucide-react';
 import Link from 'next/link';
+import { usePathname } from 'next/navigation';
 
 export function Navbar() {
   const { data: session } = useSession();
+  const pathname = usePathname();
 
   return (
     <nav className="border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
@@ -23,6 +25,44 @@ export function Navbar() {
           <Link href="/">
             <h1 className="text-xl font-bold">Art Captcha CMS</h1>
           </Link>
+          {session && (
+            <nav className="hidden md:flex items-center space-x-4 ml-8">
+              <Link
+                href="/"
+                className={`text-sm font-medium hover:text-foreground transition-colors ${
+                  pathname === '/' ? 'text-foreground' : 'text-muted-foreground'
+                }`}>
+                Dashboard
+              </Link>
+              <Link
+                href="/new"
+                className={`text-sm font-medium hover:text-foreground transition-colors ${
+                  pathname === '/new'
+                    ? 'text-foreground'
+                    : 'text-muted-foreground'
+                }`}>
+                Create
+              </Link>
+              <Link
+                href="/widget-generator"
+                className={`text-sm font-medium hover:text-foreground transition-colors ${
+                  pathname === '/widget-generator'
+                    ? 'text-foreground'
+                    : 'text-muted-foreground'
+                }`}>
+                Widget Generator
+              </Link>
+              <Link
+                href="/docs"
+                className={`text-sm font-medium hover:text-foreground transition-colors ${
+                  pathname === '/docs'
+                    ? 'text-foreground'
+                    : 'text-muted-foreground'
+                }`}>
+                Docs
+              </Link>
+            </nav>
+          )}
         </div>
 
         <div className="flex items-center space-x-4">

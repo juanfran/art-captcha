@@ -51,7 +51,10 @@ export function CaptchaCard({ captcha, onDelete }: CaptchaCardProps) {
       <CardFooter className="flex flex-col items-start gap-2 p-4">
         <div className="flex w-full items-center justify-between">
           <h2 className="font-semibold truncate">{captcha.name}</h2>
-          <Badge variant="secondary">{captcha.gridType}</Badge>
+          <div className="flex items-center gap-2">
+            <Badge variant="secondary">{captcha.gridType}</Badge>
+            <Badge variant="secondary">#{captcha.id}</Badge>
+          </div>
         </div>
         <div className="flex w-full items-center justify-between">
           <span className="text-sm text-muted-foreground">
