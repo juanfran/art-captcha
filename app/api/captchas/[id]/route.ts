@@ -49,7 +49,7 @@ export async function PUT(
 
 export async function DELETE(
   request: Request,
-  { params }: { params: { id: string } },
+  { params }: { params: Promise<{ id: string }> },
 ) {
   const session = await auth();
 
@@ -58,7 +58,8 @@ export async function DELETE(
   }
 
   try {
-    await deleteCaptcha(Number.parseInt(params.id));
+    const { id } = await params;
+    await deleteCaptcha(Number.parseInt(id));
     return Response.json({ success: true });
   } catch (error) {
     console.error('Failed to delete captcha:', error);

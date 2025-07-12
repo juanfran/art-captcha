@@ -1,7 +1,6 @@
 'use client';
 
 import { useSession, signIn } from 'next-auth/react';
-import { useState, useEffect, useCallback } from 'react';
 import { Button } from '@/components/ui/button';
 import {
   Card,
@@ -10,150 +9,76 @@ import {
   CardHeader,
   CardTitle,
 } from '@/components/ui/card';
-import { CaptchaCard } from '@/components/captcha-card';
 import { CaptchaForm } from '@/components/captcha-form';
 import { Navbar } from '@/components/navbar';
+import { CaptchaGrid } from '@/components/captcha';
+import {
+  PageHeader,
+  LoadingSpinner,
+  EmptyState,
+  InfiniteScrollTrigger,
+} from '@/components/layout';
+import { useCaptchas } from '@/hooks/useCaptchas';
+import { useCaptchaUI } from '@/hooks/useCaptchaUI';
 import type {
-  Captcha,
   CaptchaFormValues,
   CaptchaUpdateValues,
 } from '@/lib/captcha.model';
-import { Plus, Loader2 } from 'lucide-react';
-import { useInView } from 'react-intersection-observer';
-import {
-  keepPreviousData,
-  useMutation,
-  useQuery,
-  useQueryClient,
-} from '@tanstack/react-query';
-
-const pageSize = 10;
-
-async function fetchCaptchas(
-  offset = 0,
-  limit = pageSize,
-): Promise<{
-  captchas: Captcha[];
-  hasMore: boolean;
-}> {
-  const res = await fetch(`/api/captchas?offset=${offset}&limit=${limit}`);
-  if (!res.ok) {
-    throw new Error('Failed to fetch captchas');
-  }
-  const captchas = (await res.json()) as Captcha[];
-  return {
-    captchas,
-    hasMore: captchas.length === limit,
-  };
-}
 
 export default function Home() {
   const { data: session, status } = useSession();
-  const [showForm, setShowForm] = useState(false);
-  const [editingCaptcha, setEditingCaptcha] = useState<Captcha | null>(null);
-  const { ref, inView } = useInView();
-  const [page, setPage] = useState(0);
-  const queryClient = useQueryClient();
+  const {
+    captchas,
+    isLoading,
+    error,
+    hasNextPage,
+    isFetchingNextPage,
+    fetchNextPage,
+    add,
+    update,
+    remove,
+  } = useCaptchas();
 
-  const { isPending, error, data } = useQuery({
-    queryKey: ['captchas', page],
-    placeholderData: keepPreviousData,
-    queryFn: () => fetchCaptchas(page * pageSize, pageSize),
-  });
+  const {
+    editingCaptcha,
+    isFormOpen,
+    openCreateForm,
+    openEditForm,
+    closeForm,
+  } = useCaptchaUI();
 
-  const addCaptchaMutation = useMutation({
-    mutationFn: (newCaptcha: CaptchaFormValues) =>
-      fetch('/api/captchas', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(newCaptcha),
-      }).then((res) => res.json()),
-    onSettled: () => queryClient.invalidateQueries({ queryKey: ['captchas'] }),
-  });
-
-  const updateCaptchaMutation = useMutation({
-    mutationFn: (updatedCaptcha: CaptchaUpdateValues) =>
-      fetch(`/api/captchas/${updatedCaptcha.id}`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(updatedCaptcha),
-      }).then((res) => res.json()),
-    onSettled: () => queryClient.invalidateQueries({ queryKey: ['captchas'] }),
-  });
-
-  const deleteCaptchaMutation = useMutation({
-    mutationFn: (id: number) =>
-      fetch(`/api/captchas/${id}`, {
-        method: 'DELETE',
-      }),
-    onMutate: async (id: number) => {
-      await queryClient.cancelQueries({ queryKey: ['captchas', page] });
-
-      const previousCaptchas = queryClient.getQueryData<{
-        captchas: Captcha[];
-        hasMore: boolean;
-      }>(['captchas', page]);
-
-      queryClient.setQueryData<{
-        captchas: Captcha[];
-        hasMore: boolean;
-      }>(['captchas', page], (old) => {
-        if (!old)
-          return {
-            captchas: [],
-            hasMore: false,
-          };
-
-        return {
-          ...old,
-          captchas: old.captchas.filter((captcha) => captcha.id !== id),
-        };
-      });
-
-      return { previousCaptchas };
-    },
-    onError: (err, id, context) => {
-      if (context?.previousCaptchas) {
-        queryClient.setQueryData(['captchas', page], context.previousCaptchas);
-      }
-    },
-    onSettled: () => {
-      queryClient.invalidateQueries({ queryKey: ['captchas', page] });
-    },
-  });
-
-  const { mutate, variables, isPending: isAdding } = addCaptchaMutation;
-
-  useEffect(() => {
-    if (inView && data?.hasMore && !isPending) {
-      setPage((prev) => prev + 1);
-    }
-  }, [inView, data?.hasMore, isPending]);
-
-  const handleCreateCaptcha = async (data: CaptchaFormValues) => {
-    mutate(data);
-    setShowForm(false);
+  const handleCreateCaptcha = (data: CaptchaFormValues) => {
+    add.mutate(data);
+    closeForm();
   };
 
-  const handleUpdateCaptcha = async (data: Omit<CaptchaUpdateValues, 'id'>) => {
+  const handleUpdateCaptcha = (data: Omit<CaptchaUpdateValues, 'id'>) => {
     if (!editingCaptcha) return;
 
-    updateCaptchaMutation.mutate({
+    update.mutate({
       ...data,
       id: editingCaptcha.id,
     });
 
-    setEditingCaptcha(null);
+    closeForm();
+  };
+
+  const handleFormSubmit = (data: any) => {
+    if (editingCaptcha) {
+      handleUpdateCaptcha(data);
+    } else {
+      handleCreateCaptcha(data);
+    }
   };
 
   const handleDeleteCaptcha = (id: number) => {
-    deleteCaptchaMutation.mutate(id);
+    remove.mutate(id);
   };
 
   if (status === 'loading') {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <Loader2 className="h-8 w-8 animate-spin" />
+        <LoadingSpinner size="lg" />
       </div>
     );
   }
@@ -180,21 +105,36 @@ export default function Home() {
     );
   }
 
-  if (showForm || editingCaptcha) {
+  if (isFormOpen) {
     return (
       <div className="min-h-screen bg-background">
         <Navbar />
         <div className="container mx-auto py-8">
           <CaptchaForm
             captcha={editingCaptcha || undefined}
-            onSubmit={
-              editingCaptcha ? handleUpdateCaptcha : handleCreateCaptcha
-            }
-            onCancel={() => {
-              setShowForm(false);
-              setEditingCaptcha(null);
-            }}
+            onSubmit={handleFormSubmit}
+            onCancel={closeForm}
           />
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="min-h-screen bg-background">
+        <Navbar />
+        <div className="container mx-auto py-8">
+          <Card className="text-center py-12">
+            <CardContent>
+              <p className="text-destructive mb-4">
+                Error loading captchas: {error.message}
+              </p>
+              <Button onClick={() => window.location.reload()}>
+                Try Again
+              </Button>
+            </CardContent>
+          </Card>
         </div>
       </div>
     );
@@ -204,57 +144,34 @@ export default function Home() {
     <div className="min-h-screen bg-background">
       <Navbar />
       <div className="container py-8 mx-auto">
-        <div className="flex items-center justify-between mb-8">
-          <div>
-            <h1 className="text-3xl font-bold">Captcha Management</h1>
-            <p className="text-muted-foreground">
-              Manage your captcha collection
-            </p>
-          </div>
-          <Button onClick={() => setShowForm(true)}>
-            <Plus className="h-4 w-4 mr-2" />
-            New Captcha
-          </Button>
-        </div>
+        <PageHeader
+          title="Captcha Management"
+          description="Manage your captcha collection"
+          onNew={openCreateForm}
+        />
 
-        {data?.captchas.length === 0 && !isPending && !isAdding ? (
-          <Card className="text-center py-12">
-            <CardContent>
-              <p className="text-muted-foreground mb-4">No captchas found</p>
-              <Button onClick={() => setShowForm(true)}>
-                <Plus className="h-4 w-4 mr-2" />
-                Create your first captcha
-              </Button>
-            </CardContent>
-          </Card>
+        {captchas.length === 0 && !isLoading && !add.isPending ? (
+          <EmptyState
+            title="No captchas found"
+            description="Create your first captcha to get started"
+            actionLabel="Create your first captcha"
+            onAction={openCreateForm}
+          />
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-            {isAdding && variables && (
-              <CaptchaCard
-                key={'new-captcha'}
-                captcha={variables}
-                onEdit={setEditingCaptcha}
-                onDelete={handleDeleteCaptcha}
-              />
-            )}
+          <>
+            <CaptchaGrid
+              captchas={captchas}
+              optimisticCaptcha={add.isPending ? add.variables : undefined}
+              onEdit={openEditForm}
+              onDelete={handleDeleteCaptcha}
+            />
 
-            {data?.captchas.map((captcha) => (
-              <CaptchaCard
-                key={captcha.id}
-                captcha={captcha}
-                onEdit={setEditingCaptcha}
-                onDelete={handleDeleteCaptcha}
-              />
-            ))}
-          </div>
-        )}
-
-        {data?.hasMore && (
-          <div
-            ref={ref}
-            className="flex justify-center py-8">
-            {isPending && <Loader2 className="h-6 w-6 animate-spin" />}
-          </div>
+            <InfiniteScrollTrigger
+              hasNextPage={hasNextPage}
+              isFetchingNextPage={isFetchingNextPage}
+              fetchNextPage={fetchNextPage}
+            />
+          </>
         )}
       </div>
     </div>
