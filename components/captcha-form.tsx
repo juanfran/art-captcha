@@ -94,7 +94,7 @@ export function CaptchaForm({
               onChange={(e) =>
                 setFormData((prev) => ({
                   ...prev,
-                  accuracy_percentage: Number.parseInt(e.target.value),
+                  accuracyPercentage: Number.parseInt(e.target.value),
                 }))
               }
               required
