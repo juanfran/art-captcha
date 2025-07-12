@@ -7,7 +7,8 @@
     "dev": "next dev",
     "lint": "next lint",
     "start": "next start",
-    "format": "prettier --write ."
+    "format": "prettier --write .",
+    "prepare": "husky"
   },
   "engines": {
     "node": "^24.4.0",
@@ -74,6 +75,7 @@
     "drizzle-kit": "^0.31.4",
     "eslint": "^9.30.1",
     "eslint-config-next": "15.3.5",
+    "husky": "^9.1.7",
     "postcss": "^8.5",
     "prettier": "^3.6.2",
     "tailwindcss": "^3.4.17",
