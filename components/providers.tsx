@@ -3,6 +3,7 @@
 import type React from 'react';
 
 import { SessionProvider } from 'next-auth/react';
+import { unstable_ViewTransition as ViewTransition } from 'react';
 import { ThemeProvider } from '@/components/theme-provider';
 import {
   QueryClient,
@@ -21,7 +22,7 @@ export function Providers({ children }: { children: React.ReactNode }) {
         enableSystem
         disableTransitionOnChange>
         <QueryClientProvider client={queryClient}>
-          {children}
+          <ViewTransition>{children}</ViewTransition>
         </QueryClientProvider>
       </ThemeProvider>
     </SessionProvider>

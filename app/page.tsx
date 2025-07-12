@@ -18,6 +18,7 @@ import {
   InfiniteScrollTrigger,
 } from '@/components/layout';
 import { useCaptchas } from '@/hooks/useCaptchas';
+import { startTransition } from 'react';
 
 export default function Home() {
   const { data: session, status } = useSession();
@@ -33,7 +34,9 @@ export default function Home() {
   } = useCaptchas();
 
   const handleDeleteCaptcha = (id: number) => {
-    remove.mutate(id);
+    startTransition(() => {
+      remove.mutate(id);
+    });
   };
 
   if (status === 'loading') {
