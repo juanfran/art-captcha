@@ -39,11 +39,11 @@ Configure your environment variables:
 DATABASE_URL="postgresql://username:password@localhost:5432/artcaptcha"
 
 # NextAuth Configuration
-NEXTAUTH_URL="http://localhost:3000"
+NEXT_PUBLIC_AUTH_URL="http://localhost:3000"
 AUTH_SECRET="your-auth-secret"
 AUTH_TRUST_HOST=true
 
-# OAuth Providers (optional)
+# OAuth Providers
 GOOGLE_CLIENT_ID="your-google-client-id"
 GOOGLE_CLIENT_SECRET="your-google-client-secret"
 ```
