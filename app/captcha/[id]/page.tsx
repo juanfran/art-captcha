@@ -18,6 +18,7 @@ import { useCaptchas } from '@/hooks/useCaptchas';
 import { fetchCaptchaById, updateCaptcha } from '@/lib/api/captchas';
 import type { CaptchaFormValues } from '@/lib/captcha.model';
 import { use } from 'react';
+import { toast } from 'sonner';
 
 interface EditCaptchaPageProps {
   params: Promise<{
@@ -59,6 +60,7 @@ export default function EditCaptchaPage({ params }: EditCaptchaPageProps) {
 
     update.mutate(updateData, {
       onSuccess: () => {
+        toast.success('Captcha updated successfully!');
         router.push('/');
       },
       onError: (error) => {

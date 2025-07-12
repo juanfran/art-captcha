@@ -8,6 +8,7 @@ import { LoadingSpinner } from '@/components/layout';
 import type { CaptchaFormValues } from '@/lib/captcha.model';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { createCaptcha } from '@/lib/api/captchas';
+import { toast } from 'sonner';
 
 export default function NewCaptchaPage() {
   const { data: session, status } = useSession();
@@ -29,6 +30,7 @@ export default function NewCaptchaPage() {
 
     add.mutate(captchaData, {
       onSuccess: () => {
+        toast.success('Captcha created successfully!');
         router.push('/');
       },
       onError: (error) => {
