@@ -50,7 +50,7 @@ export function CaptchaCard({ captcha, onDelete }: CaptchaCardProps) {
       </CardContent>
       <CardFooter className="flex flex-col items-start gap-2 p-4">
         <div className="flex w-full items-center justify-between">
-          <h3 className="font-semibold truncate">{captcha.name}</h3>
+          <h2 className="font-semibold truncate">{captcha.name}</h2>
           <Badge variant="secondary">{captcha.gridType}</Badge>
         </div>
         <div className="flex w-full items-center justify-between">
@@ -59,6 +59,7 @@ export function CaptchaCard({ captcha, onDelete }: CaptchaCardProps) {
           </span>
           <div className="flex gap-2">
             <Button
+              aria-label="Edit captcha"
               variant="outline"
               size="sm"
               onClick={handleEdit}>
@@ -67,6 +68,7 @@ export function CaptchaCard({ captcha, onDelete }: CaptchaCardProps) {
             <AlertDialog>
               <AlertDialogTrigger asChild>
                 <Button
+                  aria-label="Delete captcha"
                   variant="outline"
                   size="sm">
                   <Trash2 className="h-4 w-4" />
