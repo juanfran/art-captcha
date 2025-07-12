@@ -19,7 +19,7 @@ export default function Login() {
   if (status === 'loading') {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <LoadingSpinner size="lg" />
+        <LoadingSpinner />
       </div>
     );
   }

@@ -22,14 +22,6 @@ export function useCaptchas(pageSize = 10) {
     initialPageParam: 0,
   });
 
-  // Mutation for creating captcha
-  const add = useMutation({
-    mutationFn: createCaptcha,
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['captchas'] });
-    },
-  });
-
   // Mutation for deleting captcha with optimistic update
   const remove = useMutation({
     mutationFn: deleteCaptcha,
@@ -72,7 +64,6 @@ export function useCaptchas(pageSize = 10) {
     hasNextPage: query.hasNextPage,
     isFetchingNextPage: query.isFetchingNextPage,
     fetchNextPage: query.fetchNextPage,
-    add,
     remove,
   };
 }

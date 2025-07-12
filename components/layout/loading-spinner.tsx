@@ -1,23 +1,36 @@
 import { Loader2 } from 'lucide-react';
+import { motion, Variants } from 'motion/react';
 
-interface LoadingSpinnerProps {
-  size?: 'sm' | 'md' | 'lg';
-  className?: string;
-}
-
-export function LoadingSpinner({
-  size = 'md',
-  className = '',
-}: LoadingSpinnerProps) {
-  const sizeClasses = {
-    sm: 'h-4 w-4',
-    md: 'h-6 w-6',
-    lg: 'h-8 w-8',
+export function LoadingSpinner() {
+  const dotVariants: Variants = {
+    jump: {
+      y: -30,
+      transition: {
+        duration: 0.8,
+        repeat: Infinity,
+        repeatType: 'mirror',
+        ease: 'easeInOut',
+      },
+    },
   };
 
   return (
-    <div className={`flex justify-center items-center ${className}`}>
-      <Loader2 className={`${sizeClasses[size]} animate-spin`} />
-    </div>
+    <motion.div
+      animate="jump"
+      transition={{ staggerChildren: -0.2, staggerDirection: -1 }}
+      className="flex items-center justify-center space-x-2">
+      <motion.div
+        className="w-5 h-5 rounded-full bg-white will-change-transform"
+        variants={dotVariants}
+      />
+      <motion.div
+        className="w-5 h-5 rounded-full bg-white will-change-transform"
+        variants={dotVariants}
+      />
+      <motion.div
+        className="w-5 h-5 rounded-full bg-white will-change-transform"
+        variants={dotVariants}
+      />
+    </motion.div>
   );
 }

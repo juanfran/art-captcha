@@ -74,7 +74,7 @@ export default function EditCaptchaPage({ params }: EditCaptchaPageProps) {
   if (status === 'loading' || isCaptchaLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <LoadingSpinner size="lg" />
+        <LoadingSpinner />
       </div>
     );
   }
@@ -125,6 +125,7 @@ export default function EditCaptchaPage({ params }: EditCaptchaPageProps) {
           captcha={captcha}
           onSubmit={handleUpdateCaptcha}
           onCancel={handleCancel}
+          isLoading={update.isPending}
         />
       </div>
     </div>

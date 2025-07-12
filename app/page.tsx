@@ -29,7 +29,6 @@ export default function Home() {
     hasNextPage,
     isFetchingNextPage,
     fetchNextPage,
-    add,
     remove,
   } = useCaptchas();
 
@@ -42,7 +41,7 @@ export default function Home() {
   if (status === 'loading') {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <LoadingSpinner size="lg" />
+        <LoadingSpinner />
       </div>
     );
   }
@@ -98,7 +97,7 @@ export default function Home() {
           description="Manage your captcha collection"
         />
 
-        {captchas.length === 0 && !isLoading && !add.isPending ? (
+        {captchas.length === 0 && !isLoading ? (
           <EmptyState
             title="No captchas found"
             description="Create your first captcha to get started"
@@ -108,7 +107,6 @@ export default function Home() {
           <>
             <CaptchaGrid
               captchas={captchas}
-              optimisticCaptcha={add.isPending ? add.variables : undefined}
               onDelete={handleDeleteCaptcha}
             />
 

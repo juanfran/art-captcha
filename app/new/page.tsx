@@ -2,24 +2,24 @@
 
 import { useSession } from 'next-auth/react';
 import { redirect, useRouter } from 'next/navigation';
-import { Button } from '@/components/ui/button';
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from '@/components/ui/card';
 import { CaptchaForm } from '@/components/captcha-form';
 import { Navbar } from '@/components/navbar';
 import { LoadingSpinner } from '@/components/layout';
-import { useCaptchas } from '@/hooks/useCaptchas';
 import type { CaptchaFormValues } from '@/lib/captcha.model';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { createCaptcha } from '@/lib/api/captchas';
 
 export default function NewCaptchaPage() {
   const { data: session, status } = useSession();
   const router = useRouter();
-  const { add } = useCaptchas();
+  const queryClient = useQueryClient();
+
+  const add = useMutation({
+    mutationFn: createCaptcha,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['captchas'] });
+    },
+  });
 
   const handleCreateCaptcha = (data: Omit<CaptchaFormValues, 'createdBy'>) => {
     const captchaData: CaptchaFormValues = {
@@ -44,7 +44,7 @@ export default function NewCaptchaPage() {
   if (status === 'loading') {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <LoadingSpinner size="lg" />
+        <LoadingSpinner />
       </div>
     );
   }
@@ -60,6 +60,7 @@ export default function NewCaptchaPage() {
         <CaptchaForm
           onSubmit={handleCreateCaptcha}
           onCancel={handleCancel}
+          isLoading={add.isPending}
         />
       </div>
     </div>

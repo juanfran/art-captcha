@@ -4,7 +4,7 @@ export interface Captcha {
   imageUrl: string;
   accuracyPercentage: number;
   gridType: string;
-  correctCells: unknown;
+  correctCells: number[];
   createdAt: Date | null;
   updatedAt: Date | null;
   createdBy: string;

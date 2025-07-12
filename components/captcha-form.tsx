@@ -26,11 +26,17 @@ interface CaptchaFormProps {
   captcha?: Captcha;
   onSubmit: (data: Omit<CaptchaFormValues, 'createdBy'>) => void;
   onCancel: () => void;
+  isLoading?: boolean;
 }
 
 const GRID_TYPES = ['3x3', '3x4', '4x3', '4x4', '5x5'];
 
-export function CaptchaForm({ captcha, onSubmit, onCancel }: CaptchaFormProps) {
+export function CaptchaForm({
+  captcha,
+  onSubmit,
+  onCancel,
+  isLoading = false,
+}: CaptchaFormProps) {
   const [formData, setFormData] = useState({
     name: captcha?.name || '',
     accuracyPercentage: captcha?.accuracyPercentage || 80,
@@ -38,7 +44,6 @@ export function CaptchaForm({ captcha, onSubmit, onCancel }: CaptchaFormProps) {
     imageUrl: captcha?.imageUrl || '',
     correctCells: captcha?.correctCells || ([] as number[]),
   });
-  const [isSubmitting, setIsSubmitting] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleImageUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -57,12 +62,7 @@ export function CaptchaForm({ captcha, onSubmit, onCancel }: CaptchaFormProps) {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setIsSubmitting(true);
-    try {
-      await onSubmit(formData);
-    } finally {
-      setIsSubmitting(false);
-    }
+    await onSubmit(formData);
   };
 
   return (
@@ -168,8 +168,8 @@ export function CaptchaForm({ captcha, onSubmit, onCancel }: CaptchaFormProps) {
           <div className="flex gap-4">
             <Button
               type="submit"
-              disabled={isSubmitting || !formData.imageUrl}>
-              {isSubmitting ? 'Saving...' : captcha ? 'Update' : 'Create'}
+              disabled={isLoading || !formData.imageUrl}>
+              {isLoading ? 'Saving...' : captcha ? 'Update' : 'Create'}
             </Button>
             <Button
               type="button"
