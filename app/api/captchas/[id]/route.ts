@@ -3,7 +3,7 @@ import { getCaptchaById, updateCaptcha, deleteCaptcha } from '@/lib/db';
 
 export async function GET(
   request: Request,
-  { params }: { params: { id: string } },
+  { params }: { params: Promise<{ id: string }> },
 ) {
   const session = await auth();
 
