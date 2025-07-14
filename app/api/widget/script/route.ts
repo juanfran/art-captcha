@@ -10,7 +10,7 @@ export async function GET(request: Request) {
 
   const widgetScript = `
 (function() {
-  const CAPTCHA_API_BASE = '${process.env.NEXTAUTH_URL || 'http://localhost:3000'}/api/widget';
+  const CAPTCHA_API_BASE = '${process.env.NEXT_PUBLIC_AUTH_URL || 'http://localhost:3000'}/api/widget';
   const CAPTCHA_ID = '${captchaId}';
   const THEME = '${theme}';
   const SIZE = '${size}';
