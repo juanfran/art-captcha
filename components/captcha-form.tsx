@@ -16,7 +16,9 @@ import {
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { GridSelector } from '@/components/grid-selector';
 import type { Captcha, CaptchaFormValues } from '@/lib/captcha.model';
-import { Upload } from 'lucide-react';
+import { Upload, Loader2, Info } from 'lucide-react';
+import { toast } from 'sonner';
+import { validateUploadedFile } from '@/lib/image-validation';
 
 interface CaptchaFormProps {
   captcha?: Captcha;
@@ -40,19 +42,93 @@ export function CaptchaForm({
     imageUrl: captcha?.imageUrl || '',
     correctCells: captcha?.correctCells || ([] as number[]),
   });
+  const [isUploading, setIsUploading] = useState(false);
+  const [compressionInfo, setCompressionInfo] = useState<{
+    original: { size: string };
+    compressed: { size: string };
+    compressionRatio: string;
+    savedBytes: string;
+  } | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const handleImageUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleImageUpload = async (
+    event: React.ChangeEvent<HTMLInputElement>,
+  ) => {
     const file = event.target.files?.[0];
-    if (file) {
+    if (!file) return;
+
+    // Client-side validation
+    const validation = validateUploadedFile(file);
+    if (!validation.isValid) {
+      toast.error(`Upload failed: ${validation.errors.join(', ')}`);
+      return;
+    }
+
+    setIsUploading(true);
+    setCompressionInfo(null);
+
+    try {
+      // Convert file to data URL for upload
       const reader = new FileReader();
-      reader.onload = (e) => {
-        setFormData((prev) => ({
-          ...prev,
-          imageUrl: e.target?.result as string,
-        }));
+      reader.onload = async (e) => {
+        const dataUrl = e.target?.result as string;
+
+        try {
+          // Upload and compress image
+          const response = await fetch('/api/images/upload', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              imageData: dataUrl,
+              compressionOptions: {
+                maxWidth: 1200,
+                maxHeight: 1200,
+                quality: 85,
+                format: 'jpeg',
+              },
+            }),
+          });
+
+          if (!response.ok) {
+            const error = await response.json();
+            throw new Error(
+              error.details?.join(', ') || error.error || 'Upload failed',
+            );
+          }
+
+          const result = await response.json();
+
+          // Update form data with compressed image
+          setFormData((prev) => ({
+            ...prev,
+            imageUrl: result.compressedImageUrl,
+            correctCells: [], // Reset selections when image changes
+          }));
+
+          // Show compression info
+          setCompressionInfo({
+            original: { size: result.metadata.original.sizeFormatted },
+            compressed: { size: result.metadata.compressed.sizeFormatted },
+            compressionRatio: result.metadata.compressionRatio,
+            savedBytes: result.metadata.savedBytesFormatted,
+          });
+        } catch (error) {
+          console.error('Upload error:', error);
+          toast.error(
+            `Upload failed: ${error instanceof Error ? error.message : 'Unknown error'}`,
+          );
+        } finally {
+          setIsUploading(false);
+        }
       };
+
       reader.readAsDataURL(file);
+    } catch (error) {
+      console.error('File processing error:', error);
+      toast.error('Failed to process file');
+      setIsUploading(false);
     }
   };
 
@@ -133,9 +209,19 @@ export function CaptchaForm({
               <Button
                 type="button"
                 variant="outline"
-                onClick={() => fileInputRef.current?.click()}>
-                <Upload className="h-4 w-4 mr-2" />
-                Upload Image
+                onClick={() => fileInputRef.current?.click()}
+                disabled={isUploading}>
+                {isUploading ? (
+                  <>
+                    <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                    Compressing...
+                  </>
+                ) : (
+                  <>
+                    <Upload className="h-4 w-4 mr-2" />
+                    Upload Image
+                  </>
+                )}
               </Button>
               <input
                 ref={fileInputRef}
@@ -144,7 +230,20 @@ export function CaptchaForm({
                 onChange={handleImageUpload}
                 className="hidden"
               />
+              {compressionInfo && (
+                <div className="text-sm text-muted-foreground flex items-center gap-1">
+                  <Info className="h-3 w-3" />
+                  {compressionInfo.original.size} →{' '}
+                  {compressionInfo.compressed.size} (
+                  {compressionInfo.compressionRatio} saved)
+                </div>
+              )}
             </div>
+            {formData.imageUrl && !isUploading && (
+              <div className="text-sm text-green-600">
+                ✓ Image uploaded and compressed successfully
+              </div>
+            )}
           </div>
 
           {formData.imageUrl && (
@@ -164,7 +263,7 @@ export function CaptchaForm({
           <div className="flex gap-4">
             <Button
               type="submit"
-              disabled={isLoading || !formData.imageUrl}>
+              disabled={isLoading || isUploading || !formData.imageUrl}>
               {isLoading ? 'Saving...' : captcha ? 'Update' : 'Create'}
             </Button>
             <Button

@@ -6,6 +6,7 @@ The goal is to explore the idea of an **art-based CAPTCHA** system.
 ## ✨ Features
 
 - 🎨 **Custom Image CAPTCHAs**: Upload images and create grid-based verification challenges
+- 🗜️ **Smart Image Compression**: Automatic server-side compression with Sharp for optimal performance
 - 🎯 **Configurable Accuracy**: Set custom accuracy thresholds (e.g., 80% correct selections required)
 - 📐 **Multiple Grid Types**: Support for 3x3, 3x4, 4x3, 4x4, 5x5 grids
 - 🌙 **Theme Support**: Light and dark themes for better integration
