@@ -42,7 +42,7 @@ export default function WidgetGeneratorPage() {
 
   const baseUrl =
     process.env.NODE_ENV === 'production'
-      ? 'https://your-domain.com'
+      ? process.env.NEXT_PUBLIC_AUTH_URL
       : 'http://localhost:3000';
 
   const scriptUrl = `${baseUrl}/api/widget/script?id=${captchaId}&theme=${theme}&size=${size}`;
