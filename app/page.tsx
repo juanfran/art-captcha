@@ -38,7 +38,7 @@ export default function Home() {
     });
   };
 
-  if (status === 'loading') {
+  if (status === 'loading' || isLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <LoadingSpinner />
