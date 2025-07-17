@@ -10,7 +10,7 @@ import {
   type FetchCaptchasResponse,
 } from '@/lib/api/captchas';
 
-export function useCaptchas(pageSize = 10) {
+export function useCaptchas(pageSize = 10, enabled = true) {
   const queryClient = useQueryClient();
 
   // Infinite query for captchas
@@ -20,6 +20,7 @@ export function useCaptchas(pageSize = 10) {
     getNextPageParam: (lastPage: FetchCaptchasResponse) =>
       lastPage.hasMore ? lastPage.nextOffset : undefined,
     initialPageParam: 0,
+    enabled,
   });
 
   // Mutation for deleting captcha with optimistic update

@@ -20,8 +20,17 @@ import {
 import { useCaptchas } from '@/hooks/useCaptchas';
 import { startTransition } from 'react';
 
+function Loading() {
+  return (
+    <div className="min-h-screen flex items-center justify-center">
+      <LoadingSpinner />
+    </div>
+  );
+}
+
 export default function Home() {
   const { data: session, status } = useSession();
+
   const {
     captchas,
     isLoading,
@@ -30,7 +39,7 @@ export default function Home() {
     isFetchingNextPage,
     fetchNextPage,
     remove,
-  } = useCaptchas();
+  } = useCaptchas(20, status === 'authenticated');
 
   const handleDeleteCaptcha = (id: number) => {
     startTransition(() => {
@@ -38,12 +47,8 @@ export default function Home() {
     });
   };
 
-  if (status === 'loading' || isLoading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <LoadingSpinner />
-      </div>
-    );
+  if (isLoading || status === 'loading') {
+    return Loading();
   }
 
   if (!session) {
