@@ -45,7 +45,7 @@ export default function WidgetGeneratorPage() {
       ? process.env.NEXT_PUBLIC_AUTH_URL
       : 'http://localhost:3000';
 
-  const scriptUrl = `${baseUrl}/api/widget/script?id=${captchaId}&theme=${theme}&size=${size}`;
+  const scriptUrl = `${baseUrl}api/widget/script?id=${captchaId}&theme=${theme}&size=${size}`;
 
   const embedCode = `<!-- Art Captcha Widget -->
 <div id="art-captcha-container" data-art-captcha="${captchaId}"></div>
