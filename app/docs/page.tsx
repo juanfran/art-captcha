@@ -338,49 +338,6 @@ app.post('/submit-form', async (req, res) => {
 });`}
               />
             </div>
-
-            <div>
-              <h4 className="font-semibold mb-2">
-                Example Server Validation (PHP)
-              </h4>
-              <CodeBlock
-                id="server-validation-php"
-                code={`<?php
-function validateCaptcha($verificationToken, $sessionToken) {
-    $url = 'https://your-domain.com/api/widget/validate';
-    $data = json_encode([
-        'verificationToken' => $verificationToken,
-        'sessionToken' => $sessionToken
-    ]);
-
-    $context = stream_context_create([
-        'http' => [
-            'method' => 'POST',
-            'header' => 'Content-Type: application/json',
-            'content' => $data
-        ]
-    ]);
-
-    $response = file_get_contents($url, false, $context);
-    $result = json_decode($response, true);
-
-    return $result['valid'] ?? false;
-}
-
-// Usage
-if ($_POST) {
-    $verificationToken = $_POST['captcha_token'] ?? '';
-    $sessionToken = $_POST['session_token'] ?? '';
-
-    if (!validateCaptcha($verificationToken, $sessionToken)) {
-        die('Captcha verification failed');
-    }
-
-    // Process form
-}
-?>`}
-              />
-            </div>
           </CardContent>
         </Card>
 
